@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -44,3 +46,17 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## Project Folder details
+
+In this backend folder has all api code and I have used node.js for backend purpose.And I have used mongodb for database.
+
+**NOTE You have to install all package using `npm i` command and after that you have run backend using `npm run dev` command**
+
+Others folders are related on font-end . I have used some technologies for front-end.
+These are -
+1.React.js
+2.Typescript
+3.Axios for API calling
+4.Redux Tool kit for State management.
+5.Using Tailwind CSS for design .

@@ -4,22 +4,42 @@ import React from "react";
 import { useAppSelector, useAppDispatch } from "../service/hook";
 import { fetchProducts } from "../service/product/productSlice";
 const Product: React.FC = () => {
-  const products = useAppSelector((state) => state.product.products);
+  const productObj = useAppSelector((state) => state.product);
   const loading = useAppSelector((state) => state.product.loading);
+  const [page, setPage] = React.useState(1);
   const dispatch = useAppDispatch();
   React.useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchProducts(page));
+  }, [dispatch, page]);
+  // Function to handle scrolling
+  const handleScroll = () => {
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight) {
+      // User has scrolled to the bottom
+      setPage((prevPage) => {
+        if (prevPage > Math.ceil(productObj?.products?.productCount / 4)) {
+          return prevPage;
+        }
+        return prevPage + 1;
+      });
+    }
+  };
 
+  // Attach scroll event listener when the component mounts
+  React.useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   if (loading) {
     return <div>Loading...</div>;
   }
-
   return (
     <main className='container mx-auto py-8'>
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
-        {products.length > 0 &&
-          products.map((pro, i) => (
+        {productObj.products.data.length > 0 &&
+          productObj.products.data.map((pro, i) => (
             <div className='bg-white shadow rounded-lg p-6' key={i}>
               <img
                 src={pro.images && pro.images[0].url}

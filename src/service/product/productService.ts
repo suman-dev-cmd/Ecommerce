@@ -1,19 +1,27 @@
 /** @format */
 
 import { makeHttpRequest } from "../api";
-
-export interface Product {
+interface Product {
   _id: string;
   name: string;
   price: number;
   description: string;
   images: any;
 }
+export interface ProductObj {
+  count: number;
+  data: Product[];
+  productCount: number;
+  success: boolean;
+}
 
-export const getProducts = async (): Promise<Product[]> => {
+export const getProducts = async (page: number): Promise<ProductObj> => {
   try {
-    const response: any = await makeHttpRequest("/products", "GET");
-    return response.data;
+    const response: any = await makeHttpRequest(
+      `/products?page=${page || 1}`,
+      "GET"
+    );
+    return response;
   } catch (error: any) {
     throw new Error(
       error.response?.data?.message || "Failed to fetch products"
