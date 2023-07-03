@@ -2,21 +2,23 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk } from "../store";
-import { ProductObj } from "./productService";
-import { getProducts } from "./productService";
+import { ProductObj, Product } from "./productService";
+import { getProducts, getProductById } from "./productService";
 
 interface ProductState {
   products: ProductObj;
+  productArrayData: Product[];
+  product: Product;
   loading: boolean;
   error: string | null;
-  hasMore: boolean;
 }
 
 const initialState: ProductState = {
   products: {} as ProductObj,
+  productArrayData: [],
+  product: {} as Product,
   loading: false,
   error: null,
-  hasMore: true,
 };
 
 const productSlice = createSlice({
@@ -24,8 +26,14 @@ const productSlice = createSlice({
   initialState,
   reducers: {
     setProducts: (state, action: PayloadAction<ProductObj>) => {
-      console.log("action", action);
       state.products = action.payload;
+      if (state.productArrayData.length !== action.payload.productCount)
+        state.productArrayData = state.productArrayData.concat(
+          action.payload.data
+        );
+    },
+    setProduct: (state, action: PayloadAction<Product>) => {
+      state.product = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -33,13 +41,10 @@ const productSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-    setHasMore: (state, action: PayloadAction<boolean>) => {
-      state.hasMore = action.payload;
-    },
   },
 });
 
-export const { setProducts, setLoading, setError, setHasMore } =
+export const { setProducts, setProduct, setLoading, setError } =
   productSlice.actions;
 
 // Thunk action to fetch products
@@ -54,9 +59,6 @@ export const fetchProducts =
       setTimeout(() => {
         dispatch(setLoading(false));
       }, 1000);
-      if (products.data.length > 0) {
-        setHasMore(false);
-      }
     } catch (error: any) {
       dispatch(setError(error.message));
       dispatch(setLoading(false));
@@ -64,19 +66,21 @@ export const fetchProducts =
   };
 
 // // Thunk action to fetch a specific product by ID
-// export const fetchProductById =
-//   (productId: number): AppThunk =>
-//   async (dispatch) => {
-//     try {
-//       dispatch(setLoading(true))
-//       const product = await getProductById(productId)
-//       dispatch(setProducts([product]))
-//       dispatch(setLoading(false))
-//     } catch (error) {
-//       dispatch(setError(error.message))
-//       dispatch(setLoading(false))
-//     }
-//   }
+export const fetchProductById =
+  (productId: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const product = await getProductById(productId);
+      dispatch(setProduct(product));
+      setTimeout(() => {
+        dispatch(setLoading(false));
+      }, 1000);
+    } catch (error: any) {
+      dispatch(setError(error.message));
+      dispatch(setLoading(false));
+    }
+  };
 
 // // Thunk action to create a new product
 // export const createNewProduct =

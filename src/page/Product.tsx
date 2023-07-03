@@ -1,29 +1,24 @@
 /** @format */
 
 import React from "react";
-import { useAppSelector, useAppDispatch } from "../service/hook";
-import { fetchProducts } from "../service/product/productSlice";
+import useProductList from "../hooks/useProductList";
+import SkeletonLoader from "../components/common/SkeletonLoader";
 const Product: React.FC = () => {
-  const productObj = useAppSelector((state) => state.product);
-  const loading = useAppSelector((state) => state.product.loading);
   const [page, setPage] = React.useState(1);
-  const dispatch = useAppDispatch();
-  React.useEffect(() => {
-    dispatch(fetchProducts(page));
-  }, [dispatch, page]);
+  const { loading, products, productCount, error } = useProductList(page);
   // Function to handle scrolling
-  const handleScroll = () => {
+  const handleScroll = React.useCallback(() => {
     const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight) {
-      // User has scrolled to the bottom
-      setPage((prevPage) => {
-        if (prevPage > Math.ceil(productObj?.products?.productCount / 4)) {
-          return prevPage;
-        }
-        return prevPage + 1;
-      });
+    if (
+      scrollTop + clientHeight >= scrollHeight - 20 &&
+      !loading &&
+      productCount !== 0 &&
+      products.length !== productCount
+    ) {
+      // User has scrolled to the bottom, not loading, and there are more products to fetch
+      setPage((prevPage) => prevPage + 1);
     }
-  };
+  }, [loading, products, productCount]);
 
   // Attach scroll event listener when the component mounts
   React.useEffect(() => {
@@ -31,15 +26,18 @@ const Product: React.FC = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [handleScroll]);
   if (loading) {
-    return <div>Loading...</div>;
+    return <SkeletonLoader />;
+  }
+  if (error) {
+    return <div>Error: {error}</div>;
   }
   return (
     <main className='container mx-auto py-8'>
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
-        {productObj.products.data.length > 0 &&
-          productObj.products.data.map((pro, i) => (
+        {products?.length > 0 &&
+          products?.map((pro, i) => (
             <div className='bg-white shadow rounded-lg p-6' key={i}>
               <img
                 src={pro.images && pro.images[0].url}

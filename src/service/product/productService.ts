@@ -1,7 +1,7 @@
 /** @format */
 
 import { makeHttpRequest } from "../api";
-interface Product {
+export interface Product {
   _id: string;
   name: string;
   price: number;
@@ -29,16 +29,16 @@ export const getProducts = async (page: number): Promise<ProductObj> => {
   }
 };
 
-// export const getProductById = async (productId: number): Promise<Product> => {
-//   try {
-//     const response = await api.get(`/products/${productId}`);
-//     return response.data;
-//   } catch (error) {
-//     throw new Error(
-//       error.response?.data?.message || "Failed to fetch product details"
-//     );
-//   }
-// };
+export const getProductById = async (productId: string): Promise<Product> => {
+  try {
+    const response: any = await makeHttpRequest(`/product/${productId}`, "GET");
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch product details"
+    );
+  }
+};
 
 // export const createProduct = async (productData: Product): Promise<Product> => {
 //   try {
